@@ -9,27 +9,32 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.devdatt.pratiti.data.model.Track
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.devdatt.pratiti.domain.mapper.toCategory
 import com.devdatt.pratiti.feature.category.component.TrackItem
 
 @Composable
-fun CategoryScreen(name: String) {
+fun CategoryScreen(
+    name: String,
+    navController: NavController,
+    viewModel: CategoryViewModel = viewModel()
+) {
 
-    val tracks = when (name) {
-        "Stavan" -> listOf(
-            Track("Sakal Pooja Avsar", "sakal_pooja_avsar.mp3"),
-            Track("Sayankal Pooja Avsar", "sayankal_pooja_avsar.mp3")
-        )
-        else -> emptyList()
+    // 🔥 Load data once
+    LaunchedEffect(Unit) {
+        viewModel.loadTracks(name.toCategory())
     }
+
+    val tracks = viewModel.tracks   // 👈 get data from VM
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        // 🧭 Header
         Text(
             text = name,
             style = MaterialTheme.typography.headlineMedium,
@@ -41,10 +46,11 @@ fun CategoryScreen(name: String) {
                 TrackItem(
                     track = track,
                     onClick = {
-                        // TODO: play track later
+                        navController.navigate("player/${track.id}")
                     }
                 )
             }
         }
     }
+
 }
