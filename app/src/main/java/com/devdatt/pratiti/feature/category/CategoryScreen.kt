@@ -21,6 +21,7 @@ import com.devdatt.pratiti.feature.category.component.TrackItem
 /**
  * Lists tracks for one category.
  * [categoryId] is also available to [CategoryViewModel] via navigation SavedStateHandle.
+ * Previews live in [CategoryScreenPreviews].
  */
 @Composable
 fun CategoryScreen(
@@ -28,7 +29,26 @@ fun CategoryScreen(
     navController: NavController,
     viewModel: CategoryViewModel = hiltViewModel()
 ) {
-    when (val state = viewModel.uiState) {
+    CategoryScreenContent(
+        categoryId = categoryId,
+        uiState = viewModel.uiState,
+        onTrackClick = { trackId ->
+            navController.navigate(Routes.player(trackId))
+        }
+    )
+}
+
+/**
+ * Stateless Category UI used by the real screen and by Compose previews.
+ * Keeps Hilt / NavController out of Preview functions.
+ */
+@Composable
+fun CategoryScreenContent(
+    categoryId: String,
+    uiState: CategoryUiState,
+    onTrackClick: (Int) -> Unit
+) {
+    when (uiState) {
         is CategoryUiState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -43,19 +63,19 @@ fun CategoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = state.message)
+                Text(text = uiState.message)
             }
         }
 
         is CategoryUiState.Success -> {
             Column(modifier = Modifier.fillMaxSize()) {
                 Text(
-                    text = state.category?.displayName ?: categoryId,
+                    text = uiState.category?.displayName ?: categoryId,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(16.dp)
                 )
 
-                if (state.tracks.isEmpty()) {
+                if (uiState.tracks.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -64,12 +84,10 @@ fun CategoryScreen(
                     }
                 } else {
                     LazyColumn {
-                        items(state.tracks, key = { it.id }) { track ->
+                        items(uiState.tracks, key = { it.id }) { track ->
                             TrackItem(
                                 track = track,
-                                onClick = {
-                                    navController.navigate(Routes.player(track.id))
-                                }
+                                onClick = { onTrackClick(track.id) }
                             )
                         }
                     }

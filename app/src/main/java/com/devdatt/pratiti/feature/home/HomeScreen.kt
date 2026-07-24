@@ -34,7 +34,8 @@ import com.devdatt.pratiti.feature.home.component.PratitiBottomBar
  * Main shell screen: bottom tabs + Home category grid.
  *
  * Tab changes update local [selectedTab] only (Search / Library / Account are placeholders).
- * Opening a category still uses the NavHost route to [CategoryScreen].
+ * Opening a category still uses the NavHost route to CategoryScreen.
+ * Previews live in [HomeScreenPreviews].
  */
 @Composable
 fun HomeScreen(
@@ -43,11 +44,34 @@ fun HomeScreen(
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(MainTab.Home) }
 
+    HomeScreenContent(
+        selectedTab = selectedTab,
+        onTabSelected = { selectedTab = it },
+        homeUiState = viewModel.uiState,
+        onRetry = viewModel::loadCategories,
+        onCategoryClick = { category ->
+            navController.navigate(Routes.category(category.id))
+        }
+    )
+}
+
+/**
+ * Stateless Home UI used by the real screen and by Compose previews.
+ * Keeps Hilt / NavController out of Preview functions.
+ */
+@Composable
+fun HomeScreenContent(
+    selectedTab: MainTab,
+    onTabSelected: (MainTab) -> Unit,
+    homeUiState: HomeUiState,
+    onRetry: () -> Unit,
+    onCategoryClick: (Category) -> Unit
+) {
     Scaffold(
         bottomBar = {
             PratitiBottomBar(
                 selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it }
+                onTabSelected = onTabSelected
             )
         }
     ) { innerPadding ->
@@ -58,11 +82,9 @@ fun HomeScreen(
         ) {
             when (selectedTab) {
                 MainTab.Home -> HomeTabContent(
-                    uiState = viewModel.uiState,
-                    onRetry = viewModel::loadCategories,
-                    onCategoryClick = { category ->
-                        navController.navigate(Routes.category(category.id))
-                    }
+                    uiState = homeUiState,
+                    onRetry = onRetry,
+                    onCategoryClick = onCategoryClick
                 )
 
                 MainTab.Search,

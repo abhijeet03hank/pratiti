@@ -18,21 +18,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.devdatt.pratiti.domain.model.Track
 
 /**
  * Full-screen player UI.
  *
  * Playback is owned by [PlayerViewModel] (shared [com.devdatt.pratiti.core.player.PlayerManager]).
  * Seek bar / duration will be added in a later phase when wired to ExoPlayer position.
+ * Previews live in [PlayerScreenPreviews].
  */
 @Composable
 fun PlayerScreen(
     navController: NavController,
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
-    val track = viewModel.track
-    val isPlaying = viewModel.isPlaying
+    PlayerScreenContent(
+        track = viewModel.track,
+        isPlaying = viewModel.isPlaying,
+        onBack = { navController.popBackStack() },
+        onTogglePlayPause = viewModel::togglePlayPause
+    )
+}
 
+/**
+ * Stateless Player UI used by the real screen and by Compose previews.
+ * Keeps Hilt / NavController out of Preview functions.
+ */
+@Composable
+fun PlayerScreenContent(
+    track: Track?,
+    isPlaying: Boolean,
+    onBack: () -> Unit,
+    onTogglePlayPause: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +61,7 @@ fun PlayerScreen(
             text = "← Back",
             modifier = Modifier
                 .align(Alignment.Start)
-                .clickable { navController.popBackStack() }
+                .clickable(onClick = onBack)
         )
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -59,7 +77,7 @@ fun PlayerScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Button(onClick = viewModel::togglePlayPause) {
+            Button(onClick = onTogglePlayPause) {
                 Text(if (isPlaying) "Pause" else "Play")
             }
         }
