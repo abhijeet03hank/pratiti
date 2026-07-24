@@ -1,0 +1,36 @@
+---
+description: Pratiti coding standards — Clean Architecture, Hilt, comments, Studio-compatible deps
+alwaysApply: true
+---
+
+# Pratiti coding standards
+
+## Architecture
+
+- Layers: UI (Compose) → ViewModel → UseCase → `TrackRepository` interface → data source
+- Do not call repositories or data sources from Composables
+- Do not put ExoPlayer / `Context` playback logic in ViewModels — use `PlayerManager`
+- Use the Hilt `@Singleton` `PlayerManager`; never `remember { PlayerManager(...) }` in screens
+
+## Comments
+
+- Add short KDoc on public types and non-obvious functions (flow / why)
+- No emoji comments, no narrating obvious lines, no large blocks of commented-out code
+- Prefer `TODO("Phase X: ...")` over empty stub clicks
+
+## Compose previews
+
+- For every new **screen**, add a separate `*ScreenPreviews.kt` in the same package
+- Keep `@Preview` + sample data out of `*Screen.kt`
+- Expose a public/internal `*ScreenContent(...)` that takes UiState / props (no Hilt, no NavController) so previews can render it
+- Example: `HomeScreen.kt` + `HomeScreenPreviews.kt`
+
+## Dependencies
+
+- Prefer latest **stable** libs via `gradle/libs.versions.toml`
+- AGP must stay within the installed Android Studio max (currently **9.1.0**)
+- Avoid RC/alpha/beta unless no stable exists
+
+## Git
+
+- Do not commit secrets or local IDE noise (`.idea/` unless the team agrees)

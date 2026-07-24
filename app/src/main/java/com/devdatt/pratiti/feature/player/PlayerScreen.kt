@@ -11,111 +11,73 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.devdatt.pratiti.core.PlayerManager
-import com.devdatt.pratiti.core.util.getRawResId
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.devdatt.pratiti.domain.model.Track
 
+/**
+ * Full-screen player UI.
+ *
+ * Playback is owned by [PlayerViewModel] (shared [com.devdatt.pratiti.core.player.PlayerManager]).
+ * Seek bar / duration will be added in a later phase when wired to ExoPlayer position.
+ * Previews live in [PlayerScreenPreviews].
+ */
 @Composable
-fun PlayerScreen(trackId: Int, viewModel: PlayerViewModel = viewModel()) {
+fun PlayerScreen(
+    navController: NavController,
+    viewModel: PlayerViewModel = hiltViewModel()
+) {
+    PlayerScreenContent(
+        track = viewModel.track,
+        isPlaying = viewModel.isPlaying,
+        onBack = { navController.popBackStack() },
+        onTogglePlayPause = viewModel::togglePlayPause
+    )
+}
 
-    val context = LocalContext.current
-    val playerManager = remember { PlayerManager(context) }
-    var isPlaying by remember { mutableStateOf(false) }
-
-    LaunchedEffect(trackId) {
-        viewModel.loadTrack(trackId)
-    }
-
-    val track = viewModel.track
-
-    LaunchedEffect(track) {
-        track?.let {
-            val resId = getRawResId(context, it.fileName)
-            if (resId != 0) {
-                playerManager.playRaw(resId)
-                isPlaying = true   // 👈 IMPORTANT
-            }
-        }
-    }
-
-    val resId = track?.let {
-        getRawResId(context, it.fileName)
-    } ?: 0
-
-
-    Column (
+/**
+ * Stateless Player UI used by the real screen and by Compose previews.
+ * Keeps Hilt / NavController out of Preview functions.
+ */
+@Composable
+fun PlayerScreenContent(
+    track: Track?,
+    isPlaying: Boolean,
+    onBack: () -> Unit,
+    onTogglePlayPause: () -> Unit
+) {
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // 🔙 Back
         Text(
             text = "← Back",
             modifier = Modifier
                 .align(Alignment.Start)
-                .clickable { /* handle back later */ }
+                .clickable(onClick = onBack)
         )
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // 🎵 Track Title
         Text(
-            text = track?.title ?: "",
+            text = track?.title.orEmpty(),
             style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // ⏱ Seekbar (dummy for now)
-        Slider(
-            value = 0.3f,
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Time Row
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("00:30")
-            Text("02:00")
-        }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // ⏮ ▶ ⏭ Controls
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Button(
-                onClick = {
-                    if (isPlaying) {
-                        playerManager.pause()
-                        isPlaying = false
-                    } else {
-                        if (resId != 0) {
-                            playerManager.playRaw(resId)
-                            isPlaying = true
-                        }
-                    }
-                }
-            ) {
+            Button(onClick = onTogglePlayPause) {
                 Text(if (isPlaying) "Pause" else "Play")
             }
         }

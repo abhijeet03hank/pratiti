@@ -1,12 +1,12 @@
 package com.devdatt.pratiti.domain.usecase
 
-import com.devdatt.pratiti.data.model.Track
-import com.devdatt.pratiti.data.repository.TrackRepository
+import com.devdatt.pratiti.domain.model.Track
+import com.devdatt.pratiti.domain.repository.TrackRepository
+import javax.inject.Inject
 
-class GetTrackByIdUseCase(
+/** Loads a single track for the Player screen by id. */
+class GetTrackByIdUseCase @Inject constructor(
     private val repository: TrackRepository
 ) {
-    operator fun invoke(id: Int): Track? {
-        return repository.getTrackById(id)
-    }
+    suspend operator fun invoke(id: Int): Track? = repository.getTrackById(id)
 }
