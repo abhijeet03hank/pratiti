@@ -12,17 +12,26 @@ Catalog size target: ~50–200 tracks. Cloudflare backend later; local `res/raw`
 - Support Android 10–17 (`minSdk` 29, modern `targetSdk`/`compileSdk`)
 - Swap local catalog for Cloudflare without rewriting UI
 
-## Current baseline (as of plan authoring)
+## Dependency policy
+
+- Always use the **latest stable** versions of libraries and plugins (Hilt, KSP, Compose BOM, Media3, Navigation, Lifecycle, Serialization, Gradle, AGP, etc.).
+- Prefer version catalog (`gradle/libs.versions.toml`) for all dependency versions.
+- Avoid RC, alpha, and beta unless a stable release does not yet exist for a required API.
+- When adding or upgrading a dependency, bump to current latest stable and keep related plugins (e.g. KSP ↔ Kotlin/Hilt) compatible.
+- Keep `compileSdk` high enough for the AndroidX libraries in use (may exceed `targetSdk`).
+
+## Current baseline (updated after Phase 0–1 + cleanup)
 
 | Area | Status |
 |------|--------|
-| Home / Category / Player screens | Present (mostly UI) |
-| Navigation | String routes in `AppNavigation` |
-| Media3 / `PlayerManager` | Basic play/pause from `raw` |
-| Repository | Hardcoded `TrackRepository`, no interface |
-| ViewModels | Manual repo construction — no Hilt |
-| Hilt | Not wired |
-| `minSdk` | 24 (target: 29) |
+| Home / Category / Player screens | Hilt ViewModels + UiState; bottom nav UI (local tabs) |
+| Navigation | Routes helper (`categoryId` / `trackId`); player back works |
+| Media3 / `PlayerManager` | `@Singleton` injected into `PlayerViewModel` |
+| Repository | Interface + `TrackRepositoryImpl` + `assets/catalog.json` |
+| ViewModels | `@HiltViewModel` + use cases |
+| Hilt | Wired (`PratitiApp`, `AppModule`, `RepositoryModule`) |
+| `minSdk` / `compileSdk` | 29 / 37 |
+| AGP | **9.1.0** (Android Studio max on this machine) |
 
 ## Target package structure
 
@@ -55,7 +64,7 @@ app/src/main/java/com/devdatt/pratiti/
 ## Phase 0 — Project foundation
 
 1. Set `minSdk = 29` (Android 10); keep current `targetSdk` / `compileSdk`.
-2. Add dependencies: Hilt + KSP, `hilt-navigation-compose`, Lifecycle ViewModel Compose; keep Media3.
+2. Add dependencies at **latest stable**: Hilt + KSP, `hilt-navigation-compose`, Lifecycle ViewModel Compose, Serialization; keep Media3 (see Dependency policy).
 3. Add `PratitiApp` (`@HiltAndroidApp`), register in manifest; `@AndroidEntryPoint` on `MainActivity`.
 4. Apply `PratitiTheme` in `setContent`.
 5. Reorganize packages to match target structure.
@@ -150,4 +159,4 @@ Prep: keep repository choosing data source via Hilt; add internet permission onl
 
 ## Immediate next action
 
-Phase 0 + Phase 1 skeleton: Hilt setup, package folders, repository interface + local impl, inject ViewModels.
+Phase 2: inject singleton `PlayerManager` into player flow, type-safe navigation polish, and end-to-end local playback UX (back navigation, shared playback session).

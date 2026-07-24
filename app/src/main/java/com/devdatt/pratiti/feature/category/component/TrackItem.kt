@@ -20,8 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.devdatt.pratiti.data.model.Track
-
+import com.devdatt.pratiti.domain.model.Track
 
 @Composable
 fun TrackItem(
@@ -37,12 +36,9 @@ fun TrackItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            // 🎵 Icon
             Icon(
                 imageVector = Icons.Default.MusicNote,
                 contentDescription = null,
@@ -51,14 +47,12 @@ fun TrackItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Title
             Text(
                 text = track.title,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f)
             )
 
-            // ▶ Play icon
             Icon(
                 imageVector = Icons.Default.PlayArrow,
                 contentDescription = null

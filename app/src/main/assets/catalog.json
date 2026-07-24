@@ -1,0 +1,38 @@
+{
+  "categories": [
+    {
+      "id": "aarti",
+      "name": "Aarti",
+      "displayName": "Aarti"
+    },
+    {
+      "id": "bhajan",
+      "name": "Bhajan",
+      "displayName": "Bhajan"
+    },
+    {
+      "id": "stavan",
+      "name": "Stavan",
+      "displayName": "Stavan"
+    },
+    {
+      "id": "pooja_avsar",
+      "name": "Pooja Avsar",
+      "displayName": "Pooja Avsar"
+    }
+  ],
+  "tracks": [
+    {
+      "id": 1,
+      "title": "Sakal Pooja Avsar",
+      "categoryId": "pooja_avsar",
+      "fileName": "sakal_pooja_avsar.mp3"
+    },
+    {
+      "id": 2,
+      "title": "Sayankal Pooja Avsar",
+      "categoryId": "pooja_avsar",
+      "fileName": "sayankal_pooja_avsar.mp3"
+    }
+  ]
+}

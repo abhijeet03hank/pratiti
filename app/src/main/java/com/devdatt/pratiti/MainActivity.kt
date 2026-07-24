@@ -4,22 +4,23 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.devdatt.pratiti.core.AppNavigation
+import com.devdatt.pratiti.core.navigation.AppNavigation
 import com.devdatt.pratiti.ui.theme.PratitiTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Single-activity host for the Compose UI.
+ * `@AndroidEntryPoint` lets Hilt inject dependencies into this activity and its ViewModels.
+ */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppNavigation()
+            PratitiTheme {
+                AppNavigation()
+            }
         }
     }
 }
